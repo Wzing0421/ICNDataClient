@@ -2,7 +2,7 @@
 
 EXE = ICNDataClient
 
-LIBS = pthread
+LIBS = pthread jsoncpp
 LIBS_SEARCH_PATH =.
 INCLUDES =
 
