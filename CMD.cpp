@@ -23,6 +23,8 @@ void CMD::Init(){
 
     // 端口任意指定
     udpclient.create(20100);
+    
+    distributer = Distributer::GetInstance(51002);
 }
 
 void CMD::InterestUnitTest_findLocalContent(string str){	
@@ -38,11 +40,22 @@ void CMD::processInerestInput(){
         // 循环获得订阅事件名称
         while (true)
         {
-            string eventName;
+            string ContentName;
             cout << "请输入订阅事件名称" << endl;
-            cin >> eventName;
-            DataReceiver dataReceiver(23456, eventName);
-            //InterestUnitTest_findLocalContent(eventName);
+            cin >> ContentName;
+
+            //need to first judge if the name container in map:
+            //if exists, that means it's just a duplicate task and remind the user
+            if(distributer->isTaskRunning(ContentName)){
+                cout << "[Warning] The task of this ContentName (" << ContentName <<  " ) is running!" << endl;
+                continue;
+            }
+            //allocate a new port for the new receiving process
+            unsigned short port = distributer->allocatePort();
+
+
+            DataReceiver dataReceiver(port, ContentName);
+            
             //allocate a port for new process
         }
         udpclient.Close();

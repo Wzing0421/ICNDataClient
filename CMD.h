@@ -4,6 +4,7 @@
 #include "UDPSocket.h"
 #include "Package.h"
 #include "DataReceiver.h"
+#include "Distributer.h"
 
 #include <unordered_map>
 #include <iostream>
@@ -29,6 +30,8 @@ private:
     unsigned short DataPort; 
     string ICNDstIp;
 
+    Distributer *distributer;
+    
     /*
      *@Description: Init method for CMD constructor
      *@Author: ZiningWang

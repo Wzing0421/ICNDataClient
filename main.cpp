@@ -28,7 +28,6 @@ void DataUnitTest(){
 int main(){
     CMD cmd;
     cmd.processInerestInput();
-
     return 0;
 }
                                                                                                                                                           
