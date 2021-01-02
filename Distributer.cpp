@@ -97,3 +97,13 @@ unsigned short Distributer::getPortByContentName(string name){
 bool Distributer::isTaskRunning(string name){
     return ContentName2Port.find(name) != ContentName2Port.end();
 }
+
+void Distributer::InsertGlobalName(string GlobalName, unsigned short _port){
+    std::lock_guard<mutex> Insertlck(distributermtx);
+    ContentName2Port.insert(make_pair(GlobalName, _port));
+}
+
+void Distributer::deleteGlobalName(string GlobalName){
+    std::lock_guard<mutex> Deletelck(distributermtx);
+    ContentName2Port.erase(GlobalName);
+}

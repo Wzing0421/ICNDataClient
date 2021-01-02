@@ -31,7 +31,7 @@ private:
     string ICNDstIp;
 
     Distributer *distributer;
-    
+
     /*
      *@Description: Init method for CMD constructor
      *@Author: ZiningWang

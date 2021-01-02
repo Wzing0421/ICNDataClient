@@ -3,6 +3,7 @@
 
 #include "UDPSocket.h"
 #include "Package.h"
+#include "Distributer.h"
 
 #include <unordered_map>
 #include <iostream>
@@ -21,25 +22,38 @@ private:
 
     UDPSocket udpReceiver;
 
-    /**
-     * ContentName for ICN, and can be related to filename
-     */    
-    string ContentName;
+    unsigned short bindport;
 
     /**
      * FileName for storing data stream
+     * eg: test1.txt
      */
     string FileName;
 
+    /**
+     * Overall name for the name without segment
+     * eg: pku/eecs/file/test1.txt
+     */
+    string GlobalName;
+
+    ofstream outfile;
+
+    Distributer *distributer;
 
     /*
      *@Description: Transfer ContentName to FileName
      *@Author: ZiningWang
      *@Date: 2020-12-30 20:12:55
     */
-    string getFileName(string ContentName);
+    string getFileName(string GlobalName);
 
     void SplitString(string& s, vector<string>& v, const string& c);
+
+    string getUpperName(string name);
+
+public:
+    DataReceiver(unsigned short port, string _GlobalName);
+    ~DataReceiver();
 
     /*
      *@Description: main process for receiving data package, sorting, writing to file AND Noticing user.
@@ -47,10 +61,5 @@ private:
      *@Date: 2020-12-30 20:42:04
     */
     void ProcReceiver();
-
-
-public:
-    DataReceiver(unsigned short port, string contentname);
-    ~DataReceiver();
 };
 #endif

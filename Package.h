@@ -110,4 +110,16 @@ struct InquirePackage{
     InquirePackage(){}
 };
 
+struct ARGS
+{
+    string GlobalName;
+    unsigned short port;
+
+    ARGS(string _GlobalNames, unsigned short _port){
+        GlobalName = _GlobalNames;
+        port = _port;
+    }
+};
+
+
 #endif

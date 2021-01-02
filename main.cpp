@@ -24,10 +24,28 @@ void DataUnitTest(){
     udpclient.sendbuf(sendbuf, sizeof(sendbuf), ICNDstIp, DataPort);
 }
 */
+void *distributeProc(void*){
+    Distributer *distributer = Distributer::GetInstance(51002);
+    distributer->distributeProc();
+}
 
-int main(){
+void *inputProc(void*){
     CMD cmd;
     cmd.processInerestInput();
+}
+
+int main(){
+    pthread_t thid1, thid2;
+    if(pthread_create(&thid1, NULL, distributeProc, NULL) != 0){
+        cout << "distribute process create error!" << endl;
+        return -1;
+    }
+    if(pthread_create(&thid2, NULL, inputProc, NULL) != 0){
+        cout << "input process create error!" << endl;
+        return -1;
+    }
+    pthread_join(thid1, NULL);
+    pthread_join(thid2, NULL);
     return 0;
 }
                                                                                                                                                           

@@ -76,7 +76,7 @@ public:
      *@return: true if name exist. DO NOT execute the task because of duplication.
     */
     bool isTaskRunning(string name);
-    
+
     /*
      *@Description: main process for distributing.
      1. get data packages and transfer to relating port
@@ -84,6 +84,10 @@ public:
      *@Date: 2021-01-01 15:22:23
     */
     void distributeProc();
+
+    void InsertGlobalName(string GlobalName, unsigned short _port);
+
+    void deleteGlobalName(string GlobalName);
     
 };
 #endif

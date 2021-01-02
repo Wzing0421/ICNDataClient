@@ -1,5 +1,11 @@
 #include "CMD.h"
 
+void *thread_startDataReceiver(void* arg){
+    ARGS *p = (ARGS*)arg;
+    DataReceiver dataReceiver(p->port, p->GlobalName);
+    dataReceiver.ProcReceiver();
+}
+
 CMD::CMD(){
     Init();
 }
@@ -40,23 +46,29 @@ void CMD::processInerestInput(){
         // 循环获得订阅事件名称
         while (true)
         {
-            string ContentName;
-            cout << "请输入订阅事件名称" << endl;
-            cin >> ContentName;
+            string GlobalName;
+            cout << "请输入全局订阅事件名称" << endl;
+            cin >> GlobalName;
 
             //need to first judge if the name container in map:
             //if exists, that means it's just a duplicate task and remind the user
-            if(distributer->isTaskRunning(ContentName)){
-                cout << "[Warning] The task of this ContentName (" << ContentName <<  " ) is running!" << endl;
+            if(distributer->isTaskRunning(GlobalName)){
+                cout << "[Warning] The task of this GlobalName (" << GlobalName <<  " ) is running!" << endl;
                 continue;
             }
             //allocate a new port for the new receiving process
             unsigned short port = distributer->allocatePort();
+            distributer->InsertGlobalName(GlobalName, port);
 
-
-            DataReceiver dataReceiver(port, ContentName);
+            // allocate a port for new process
+            pthread_t thid;
+            ARGS arg(GlobalName, port);
+            if(pthread_create(&thid, NULL, thread_startDataReceiver, (void*)&arg) != 0){
+                cout << "Thread " << thid << "create error" << endl;
+                continue;
+            }
+            pthread_join(thid, NULL);
             
-            //allocate a port for new process
         }
         udpclient.Close();
 }
