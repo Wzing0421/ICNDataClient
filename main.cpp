@@ -34,7 +34,49 @@ void *inputProc(void*){
     cmd.processInerestInput();
 }
 
+void fileCopy(char *file1, char *file2)  
+{  
+    // 最好对file1和file2进行判断  
+      
+    ifstream in(file1);  
+    ofstream out(file2);  
+    string filename;  
+    string line;  
+  
+    while (getline (in, line))  
+    {   
+        char buf[1400];
+        int i;
+        for(i = 0; i < line.size(); i++){
+            buf[i] = line[i];
+        }
+        buf[i] = '\0';
+        out << buf << endl;
+          
+    }
+}  
+
+void binfileCopy(char* file1, char* file2){
+    ifstream fin(file1, ios::binary);
+    ofstream fout(file2, ios::binary);
+
+    if(!fin){
+        cout << "File open error" << endl;
+        return;
+    }
+    char buf[1400];
+    while (!fin.eof())
+    {
+        /* code */
+        fin.read(buf, 1400);
+        fout.write(buf, fin.gcount());
+    }
+    fin.close();
+    fout.close();
+}
+
 int main(){
+    /*
     pthread_t thid1, thid2;
     if(pthread_create(&thid1, NULL, distributeProc, NULL) != 0){
         cout << "distribute process create error!" << endl;
@@ -46,6 +88,9 @@ int main(){
     }
     pthread_join(thid1, NULL);
     pthread_join(thid2, NULL);
+    */
+    fileCopy("1.txt", "3.txt");
+    //binfileCopy("test1.jpg", "test3.jpg");
     return 0;
 }
                                                                                                                                                           
