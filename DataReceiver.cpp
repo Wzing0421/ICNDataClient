@@ -59,7 +59,8 @@ void DataReceiver::ProcReceiver(){
         
 
         //save to the disk
-        outfile << dataPackage.data;
+        // DO remember this is the TEXT method not the BINARY method
+        outfile << dataPackage.data << endl;
         if(dataPackage.end) break;
 
     }
@@ -68,7 +69,24 @@ void DataReceiver::ProcReceiver(){
     distributer->deleteGlobalName(GlobalName);
     distributer->retreivePort(bindport);
 }
-
+/**
+ * ifstream in(file1);  
+    ofstream out(file2);  
+    string filename;  
+    string line;  
+  
+    while (getline (in, line))  
+    {   
+        char buf[1400];
+        int i;
+        for(i = 0; i < line.size(); i++){
+            buf[i] = line[i];
+        }
+        buf[i] = '\0';
+        out << buf << endl;
+          
+    }
+ */
 string DataReceiver::getUpperName(string name){
     string upperName = "";
     size_t postion = name.find("segment");

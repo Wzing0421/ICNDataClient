@@ -42,7 +42,7 @@ void fileCopy(char *file1, char *file2)
     ofstream out(file2);  
     string filename;  
     string line;  
-  
+     
     while (getline (in, line))  
     {   
         char buf[1400];
@@ -51,6 +51,12 @@ void fileCopy(char *file1, char *file2)
             buf[i] = line[i];
         }
         buf[i] = '\0';
+        if(in.eof()){
+            cout << "End" << endl;
+        }
+        else{
+            cout << "Not End" << endl;
+        }
         out << buf << endl;
           
     }
@@ -75,6 +81,57 @@ void binfileCopy(char* file1, char* file2){
     fout.close();
 }
 
+void receiveBinFile(char* filename){
+    ofstream outfile(filename, ios::binary);
+    UDPSocket udpsocket;
+    udpsocket.create(51002);
+    
+    char recvBuf[1500];
+    string srcip_;
+    unsigned short sport_;
+    int lenrecv;
+    while (true)
+    {
+        lenrecv = udpsocket.recvbuf(recvBuf, 1500, srcip_, sport_);
+        if(lenrecv < 0){
+            cout << "[Error] udpSocket recv error" << endl;
+            break;
+        }
+        DataPackage datapackage;
+        memcpy(&datapackage, recvBuf, sizeof(DataPackage));
+        outfile.write(datapackage.data, datapackage.datasize);
+        if(datapackage.end == 1) break;
+    }
+    udpsocket.Close();
+    outfile.close();
+}
+
+void receiveTextFile(char* filename){
+    ofstream outfile(filename);
+    UDPSocket udpsocket;
+    udpsocket.create(51002);
+    
+    char recvBuf[1500];
+    string srcip_;
+    unsigned short sport_;
+    int lenrecv;
+    while (true)
+    {
+        lenrecv = udpsocket.recvbuf(recvBuf, 1500, srcip_, sport_);
+        if(lenrecv < 0){
+            cout << "[Error] udpSocket recv error" << endl;
+            break;
+        }
+        DataPackage datapackage;
+        memcpy(&datapackage, recvBuf, sizeof(DataPackage));
+        
+        outfile << datapackage.data << endl;
+        if(datapackage.end == 1) break;
+    }
+    udpsocket.Close();
+    outfile.close();
+}
+
 int main(){
     /*
     pthread_t thid1, thid2;
@@ -89,8 +146,9 @@ int main(){
     pthread_join(thid1, NULL);
     pthread_join(thid2, NULL);
     */
-    fileCopy("1.txt", "3.txt");
-    //binfileCopy("test1.jpg", "test3.jpg");
+    
+    //receiveTextFile("test2.txt");
+    receiveBinFile("11583.mp3");
     return 0;
 }
                                                                                                                                                           
