@@ -87,8 +87,8 @@ void CMD::Init(){
     distributer = Distributer::GetInstance(51002);
 }
 
-void CMD::InterestUnitTest_findLocalContent(string str){	
-    InterestPackage package(str.c_str());
+void CMD::SendInterestPackage(string GlobalName){	
+    InterestPackage package(GlobalName.c_str());
     char sendbuffer[100];
     memset(sendbuffer, 0, sizeof(sendbuffer));
     memcpy(sendbuffer, &package, sizeof(package));
@@ -124,6 +124,7 @@ void CMD::processInerestInput(){
                 continue;
             }
             sleep(1);
+            SendInterestPackage(GlobalName);
             //pthread_join(thid, NULL);
             
         }

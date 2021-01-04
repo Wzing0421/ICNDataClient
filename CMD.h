@@ -52,7 +52,7 @@ public:
     */
     void processInerestInput();
 
-    void InterestUnitTest_findLocalContent(string str);
+    void SendInterestPackage(string GlobalName);
 };
 
 #endif
