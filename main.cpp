@@ -133,7 +133,7 @@ void receiveTextFile(char* filename){
 }
 
 int main(){
-    /*
+    
     pthread_t thid1, thid2;
     if(pthread_create(&thid1, NULL, distributeProc, NULL) != 0){
         cout << "distribute process create error!" << endl;
@@ -145,10 +145,8 @@ int main(){
     }
     pthread_join(thid1, NULL);
     pthread_join(thid2, NULL);
-    */
     
-    //receiveTextFile("test2.txt");
-    receiveBinFile("11583.mp3");
+    // pku/eecs/file/test2.txt
     return 0;
 }
                                                                                                                                                           

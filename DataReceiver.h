@@ -49,17 +49,22 @@ private:
 
     void SplitString(string& s, vector<string>& v, const string& c);
 
-    string getUpperName(string name);
-
 public:
     DataReceiver(unsigned short port, string _GlobalName);
     ~DataReceiver();
 
     /*
-     *@Description: main process for receiving data package, sorting, writing to file AND Noticing user.
+     *@Description: main process for receiving TEXT data package, sorting, writing to file AND Noticing user.
      *@Author: ZiningWang
      *@Date: 2020-12-30 20:42:04
     */
-    void ProcReceiver();
+    void ProcTextReceiver();
+
+    /*
+     *@Description: main process for receiving BINARY data package, sorting, writing to file AND Noticing user.
+     *@Author: ZiningWang
+     *@Date: 2021-01-04 16:35:10
+    */
+    void ProcBinReceiver();
 };
 #endif

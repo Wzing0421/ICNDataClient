@@ -5,6 +5,7 @@ DataReceiver::DataReceiver(unsigned short port, string _GlobalName){
     udpReceiver.create(bindport);
     GlobalName = _GlobalName;
     FileName = getFileName(GlobalName);
+    cout << "GlobalName: " << GlobalName << " FileName: "  << FileName << endl;
     if(FileName == ""){
         cout << "[Error] Invalid FileName! FileName is: " << FileName << endl;
         udpReceiver.Close();
@@ -43,7 +44,7 @@ void DataReceiver::SplitString(string& s, vector<string>& v, const string& c){
         v.push_back(s.substr(pos1));
 }
 
-void DataReceiver::ProcReceiver(){
+void DataReceiver::ProcTextReceiver(){
 
     char recvDataBuf[1500];
     string srcip_;
@@ -59,39 +60,55 @@ void DataReceiver::ProcReceiver(){
         
 
         //save to the disk
-        // DO remember this is the TEXT method not the BINARY method
+        //1. save binary file
+        //outfile.write(dataPackage.data, dataPackage.datasize);
+        
+        //2. save Text file
+        cout << dataPackage.contentName << endl;
         outfile << dataPackage.data << endl;
-        if(dataPackage.end) break;
+        if(dataPackage.end == 1) break;
 
     }
+    
+    sleep(1);
     udpReceiver.Close();
     outfile.close();
     distributer->deleteGlobalName(GlobalName);
     distributer->retreivePort(bindport);
+
+    cout << "[Info]: " << GlobalName << " thread receive end. File Name is: " << FileName << endl; 
+    cout << "请输入全局订阅事件名称" << endl;
 }
-/**
- * ifstream in(file1);  
-    ofstream out(file2);  
-    string filename;  
-    string line;  
-  
-    while (getline (in, line))  
-    {   
-        char buf[1400];
-        int i;
-        for(i = 0; i < line.size(); i++){
-            buf[i] = line[i];
+
+void DataReceiver::ProcBinReceiver(){
+    char recvDataBuf[1500];
+    string srcip_;
+    unsigned short sport_;
+    while(true){
+        int lenrecv = udpReceiver.recvbuf(recvDataBuf, 1500, srcip_, sport_);
+        if(lenrecv < 0){
+            cout << "[Error] udpReceiver recv error" << endl;
+            break;
         }
-        buf[i] = '\0';
-        out << buf << endl;
-          
+        DataPackage dataPackage;
+        memcpy(&dataPackage, recvDataBuf, sizeof(DataPackage));
+        
+
+        //save to the disk
+        //1. save binary file
+        outfile.write(dataPackage.data, dataPackage.datasize);
+        
+        //2. save Text file
+        //outfile << dataPackage.data << endl;
+        if(dataPackage.end == 1) break;
+
     }
- */
-string DataReceiver::getUpperName(string name){
-    string upperName = "";
-    size_t postion = name.find("segment");
-    if(postion == string::npos){
-        return upperName;
-    }
-    return name.substr(0, postion - 1);
+    sleep(1);
+    udpReceiver.Close();
+    outfile.close();
+    distributer->deleteGlobalName(GlobalName);
+    distributer->retreivePort(bindport);
+
+    cout << "[Info]: " << GlobalName << " thread receive end. File Name is: " << FileName << endl; 
+    cout << "请输入全局订阅事件名称" << endl;
 }

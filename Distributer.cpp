@@ -52,6 +52,7 @@ void Distributer::distributeProc(){
     char recvDataBuf[1500];
     string srcip_;
     unsigned short sport_;
+
     while(true){
         int lenrecv = udpSocket.recvbuf(recvDataBuf, 1500, srcip_, sport_);
         if(lenrecv < 0){
@@ -68,7 +69,7 @@ void Distributer::distributeProc(){
 
         //transfer to receiving process
         unsigned short port;
-        if( port = getPortByContentName(upperName) != 0){
+        if( (port = getPortByContentName(upperName)) != 0){
             udpSocket.sendbuf(recvDataBuf, 1500, "127.0.0.1", port);
         }
         else{
