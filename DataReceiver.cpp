@@ -64,7 +64,6 @@ void DataReceiver::ProcTextReceiver(){
         //outfile.write(dataPackage.data, dataPackage.datasize);
         
         //2. save Text file
-        cout << dataPackage.contentName << endl;
         outfile << dataPackage.data << endl;
         if(dataPackage.end == 1) break;
 
