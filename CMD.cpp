@@ -107,10 +107,12 @@ void CMD::SendUnSubscribeInterestPackage(string GlobalName){
     DataPackage dataPacakge;
     dataPacakge.segmentNum = -1;
     unsigned short port = distributer->getPortByContentName(GlobalName);
-    char sendbuffer1[1500];
-    memset(sendbuffer1, 0, sizeof(sendbuffer1));
-    memcpy(sendbuffer1, &dataPacakge, sizeof(dataPacakge));
-    udpclient.sendbuf(sendbuffer1, sizeof(sendbuffer1), "127.0.0.1", port);
+    if(port != 0){
+        char sendbuffer1[1500];
+        memset(sendbuffer1, 0, sizeof(sendbuffer1));
+        memcpy(sendbuffer1, &dataPacakge, sizeof(dataPacakge));
+        udpclient.sendbuf(sendbuffer1, sizeof(sendbuffer1), "127.0.0.1", port);
+    }
 }
 
 void CMD::processInerestInput(){
@@ -157,7 +159,14 @@ void CMD::processInerestInput(){
                 string GlobalName;
                 cout << "请输入取消订阅事件名称" << endl;
                 cin >> GlobalName;
-                SendUnSubscribeInterestPackage(GlobalName);
+
+                // only if the task is still working before we can stop it
+                if(distributer->isTaskRunning(GlobalName)){
+                    SendUnSubscribeInterestPackage(GlobalName);
+                }
+                else{
+                    cout << "当前无此任务!" << endl;
+                }
             }
         }
         udpclient.Close();
