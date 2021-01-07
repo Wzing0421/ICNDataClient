@@ -52,7 +52,10 @@ public:
     */
     void processInerestInput();
 
-    void SendInterestPackage(string GlobalName);
+    void SendSubscribeInterestPackage(string GlobalName);
+
+    void SendUnSubscribeInterestPackage(string GlobalName);
+
 };
 
 #endif

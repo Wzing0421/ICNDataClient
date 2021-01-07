@@ -87,46 +87,78 @@ void CMD::Init(){
     distributer = Distributer::GetInstance(51002);
 }
 
-void CMD::SendInterestPackage(string GlobalName){	
-    InterestPackage package(GlobalName.c_str());
+void CMD::SendSubscribeInterestPackage(string GlobalName){	
+    InterestPackage package(GlobalName.c_str(), 1);
     char sendbuffer[100];
     memset(sendbuffer, 0, sizeof(sendbuffer));
     memcpy(sendbuffer, &package, sizeof(package));
     udpclient.sendbuf(sendbuffer, sizeof(sendbuffer), ICNDstIp, InterestPort);
 }
 
+void CMD::SendUnSubscribeInterestPackage(string GlobalName){
+    // 1. notify ICN node
+    InterestPackage package(GlobalName.c_str(), 0);
+    char sendbuffer[100];
+    memset(sendbuffer, 0, sizeof(sendbuffer));
+    memcpy(sendbuffer, &package, sizeof(package));
+    udpclient.sendbuf(sendbuffer, sizeof(sendbuffer), ICNDstIp, InterestPort);
 
+    // 2. notify local receiving thread
+    DataPackage dataPacakge;
+    dataPacakge.segmentNum = -1;
+    unsigned short port = distributer->getPortByContentName(GlobalName);
+    char sendbuffer1[1500];
+    memset(sendbuffer1, 0, sizeof(sendbuffer1));
+    memcpy(sendbuffer1, &dataPacakge, sizeof(dataPacakge));
+    udpclient.sendbuf(sendbuffer1, sizeof(sendbuffer1), "127.0.0.1", port);
+}
 
 void CMD::processInerestInput(){
         cout << "ICN Data Client Starts!" << endl;
         // 循环获得订阅事件名称
         while (true)
         {
-            string GlobalName;
-            cout << "请输入全局订阅事件名称" << endl;
-            cin >> GlobalName;
-            cout << GlobalName << endl;
-            //need to first judge if the name container in map:
-            //if exists, that means it's just a duplicate task and remind the user
-            if(distributer->isTaskRunning(GlobalName)){
-                cout << "[Warning] The task of this GlobalName (" << GlobalName <<  " ) is running!" << endl;
+            string operation;
+            cout << "请选择操作：　如订阅请输入: 1; 如取消订阅请输入: 0" << endl;
+            cin >> operation;
+            if(operation != "0" && operation != "1"){
+                cout << "操作输入有误，请重新输入" << endl;
                 continue;
             }
-            //allocate a new port for the new receiving process
-            unsigned short port = distributer->allocatePort();
-            distributer->InsertGlobalName(GlobalName, port);
+            if(operation == "1"){
+                // 订阅操作
+                string GlobalName;
+                cout << "请输入全局订阅事件名称" << endl;
+                cin >> GlobalName;
+                
+                //need to first judge if the name container in map:
+                //if exists, that means it's just a duplicate task and remind the user
+                if(distributer->isTaskRunning(GlobalName)){
+                    cout << "[Warning] The task of this GlobalName (" << GlobalName <<  " ) is running!" << endl;
+                    continue;
+                }
+                //allocate a new port for the new receiving process
+                unsigned short port = distributer->allocatePort();
+                distributer->InsertGlobalName(GlobalName, port);
 
-            // allocate a port for new process
-            pthread_t thid;            
-            ARGS arg(GlobalName, port);
-            if(pthread_create(&thid, NULL, thread_startDataReceiver, (void*)&arg) != 0){
-                cout << "Thread " << thid << "create error" << endl;
-                continue;
+                // allocate a port for new process
+                pthread_t thid;            
+                ARGS arg(GlobalName, port);
+                if(pthread_create(&thid, NULL, thread_startDataReceiver, (void*)&arg) != 0){
+                    cout << "Thread " << thid << "create error" << endl;
+                    continue;
+                }
+                sleep(1);
+                SendSubscribeInterestPackage(GlobalName);
+                //pthread_join(thid, NULL);
             }
-            sleep(1);
-            SendInterestPackage(GlobalName);
-            //pthread_join(thid, NULL);
-            
+            else{
+                //取消订阅
+                string GlobalName;
+                cout << "请输入取消订阅事件名称" << endl;
+                cin >> GlobalName;
+                SendUnSubscribeInterestPackage(GlobalName);
+            }
         }
         udpclient.Close();
 }

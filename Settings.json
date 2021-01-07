@@ -3,5 +3,5 @@
     "InterestPort": 51001,
     "DataPort": 51002,
     "commentICNDstIP" : "ICNDstIP作用是定位目的ICN的IP地址",
-    "ICNDstIP": "162.105.85.247"
+    "ICNDstIP": "162.105.85.235"
 }

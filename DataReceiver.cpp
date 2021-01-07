@@ -49,6 +49,9 @@ void DataReceiver::ProcTextReceiver(){
     char recvDataBuf[1500];
     string srcip_;
     unsigned short sport_;
+
+    bool UnSubscribe = false;
+
     while(true){
         int lenrecv = udpReceiver.recvbuf(recvDataBuf, 1500, srcip_, sport_);
         if(lenrecv < 0){
@@ -57,7 +60,11 @@ void DataReceiver::ProcTextReceiver(){
         }
         DataPackage dataPackage;
         memcpy(&dataPackage, recvDataBuf, sizeof(DataPackage));
-        
+        if(dataPackage.segmentNum == -1){
+            //  dataPackage.segmentNum == -1 means unsubscribe signal
+            UnSubscribe = true;
+            break; 
+        }
 
         //save to the disk
         //1. save binary file
@@ -74,15 +81,24 @@ void DataReceiver::ProcTextReceiver(){
     outfile.close();
     distributer->deleteGlobalName(GlobalName);
     distributer->retreivePort(bindport);
-
-    cout << "[Info]: " << GlobalName << " thread receive end. File Name is: " << FileName << endl; 
-    cout << "请输入全局订阅事件名称" << endl;
+    if(UnSubscribe){
+        // delete file
+        remove(FileName.c_str());
+        cout << "[Info]: " << GlobalName << " 取消订阅成功 " << endl;
+    }
+    else{
+        cout << "[Info]: " << GlobalName << " thread receive end. File Name is: " << FileName << endl;
+    }
+    cout << "请选择操作：　如订阅请输入: 1; 如取消订阅请输入: 0" << endl;
 }
 
 void DataReceiver::ProcBinReceiver(){
     char recvDataBuf[1500];
     string srcip_;
     unsigned short sport_;
+
+    bool UnSubscribe = false;
+
     while(true){
         int lenrecv = udpReceiver.recvbuf(recvDataBuf, 1500, srcip_, sport_);
         if(lenrecv < 0){
@@ -91,7 +107,11 @@ void DataReceiver::ProcBinReceiver(){
         }
         DataPackage dataPackage;
         memcpy(&dataPackage, recvDataBuf, sizeof(DataPackage));
-        
+        if(dataPackage.segmentNum == -1){
+            //  dataPackage.segmentNum == -1 means unsubscribe signal
+            UnSubscribe = true;
+            break; 
+        }
 
         //save to the disk
         //1. save binary file
@@ -107,7 +127,13 @@ void DataReceiver::ProcBinReceiver(){
     outfile.close();
     distributer->deleteGlobalName(GlobalName);
     distributer->retreivePort(bindport);
-
-    cout << "[Info]: " << GlobalName << " thread receive end. File Name is: " << FileName << endl; 
-    cout << "请输入全局订阅事件名称" << endl;
+    if(UnSubscribe){
+        // delete file
+        remove(FileName.c_str());
+        cout << "[Info]: " << GlobalName << " 取消订阅成功 " << endl;
+    }
+    else{
+        cout << "[Info]: " << GlobalName << " thread receive end. File Name is: " << FileName << endl;
+    }
+    cout << "请选择操作：　如订阅请输入: 1; 如取消订阅请输入: 0" << endl;
 }

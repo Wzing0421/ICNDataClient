@@ -55,7 +55,6 @@ private:
 
     string getUpperName(string name);
 
-    unsigned short getPortByContentName(string name);
 
 public:
     ~Distributer();
@@ -89,5 +88,6 @@ public:
 
     void deleteGlobalName(string GlobalName);
     
+    unsigned short getPortByContentName(string name);
 };
 #endif
