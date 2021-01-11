@@ -19,6 +19,14 @@ void *thread_startDataReceiver(void* arg){
     }
 }
 
+void *thread_startVideoReceiver(void *arg){
+    ARGS *p = (ARGS*) arg;
+    VideoReceiver videoReceiver(p->port, p->GlobalName);
+    
+    cout << "Create Video Receiving thread, port is: " << p->port << endl;
+    videoReceiver.ProcVideoReceiver();
+}
+
 /*
  *@Description: judge if a file is a binary file or text file
  *@Author: ZiningWang
@@ -88,7 +96,7 @@ void CMD::Init(){
 }
 
 void CMD::SendSubscribeInterestPackage(string GlobalName){	
-    InterestPackage package(GlobalName.c_str(), 1);
+    InterestPackage package(GlobalName.c_str(), 1, 0);
     char sendbuffer[100];
     memset(sendbuffer, 0, sizeof(sendbuffer));
     memcpy(sendbuffer, &package, sizeof(package));
@@ -97,7 +105,7 @@ void CMD::SendSubscribeInterestPackage(string GlobalName){
 
 void CMD::SendUnSubscribeInterestPackage(string GlobalName){
     // 1. notify ICN node
-    InterestPackage package(GlobalName.c_str(), 0);
+    InterestPackage package(GlobalName.c_str(), 0, 0);
     char sendbuffer[100];
     memset(sendbuffer, 0, sizeof(sendbuffer));
     memcpy(sendbuffer, &package, sizeof(package));
@@ -113,6 +121,37 @@ void CMD::SendUnSubscribeInterestPackage(string GlobalName){
         memcpy(sendbuffer1, &dataPacakge, sizeof(dataPacakge));
         udpclient.sendbuf(sendbuffer1, sizeof(sendbuffer1), "127.0.0.1", port);
     }
+}
+
+void CMD::SendVideoSubscribeInterestPackage(string GlobalName){
+    InterestPackage package(GlobalName.c_str(), 1, 1);
+    char sendbuffer[100];
+    memset(sendbuffer, 0, sizeof(sendbuffer));
+    memcpy(sendbuffer, &package, sizeof(package));
+    udpclient.sendbuf(sendbuffer, sizeof(sendbuffer), ICNDstIp, InterestPort);
+}
+
+void CMD::SendVideoUnSubscribeInterestPackage(string GlobalName){
+    // 1. notify ICN node
+    InterestPackage package(GlobalName.c_str(), 0, 1);
+    char sendbuffer[100];
+    memset(sendbuffer, 0, sizeof(sendbuffer));
+    memcpy(sendbuffer, &package, sizeof(package));
+    udpclient.sendbuf(sendbuffer, sizeof(sendbuffer), ICNDstIp, InterestPort);
+
+    // 2. notify local receiving thread
+    char sendbuf[10];
+    string stopSignal = "Stop Video";
+    memcpy(sendbuf, stopSignal.c_str(), stopSignal.size());
+    //unsigned short port = distributer->getPortByContentName(GlobalName);
+    unsigned short port = 51005;
+    if(port != 0){
+        udpclient.sendbuf(sendbuf, sizeof(sendbuf), "127.0.0.1", port);
+    }
+}
+
+bool CMD::judgeVideo(string GlobalName){
+    return GlobalName.find("video") != GlobalName.npos;
 }
 
 void CMD::processInerestInput(){
@@ -144,15 +183,33 @@ void CMD::processInerestInput(){
                 distributer->InsertGlobalName(GlobalName, port);
 
                 // allocate a port for new process
-                pthread_t thid;            
-                ARGS arg(GlobalName, port);
-                if(pthread_create(&thid, NULL, thread_startDataReceiver, (void*)&arg) != 0){
-                    cout << "Thread " << thid << "create error" << endl;
-                    continue;
+                if(judgeVideo(GlobalName)){
+                    // video process
+                    pthread_t thid;
+
+                    //JUST FOR TEST!!!!            
+                    //ARGS arg(GlobalName, port);
+                    ARGS arg(GlobalName, 51005);
+                    if(pthread_create(&thid, NULL, thread_startVideoReceiver, (void*)&arg) != 0){
+                        cout << "Video Thread " << thid << "create error" << endl;
+                        continue;
+                    }
+                    sleep(1);
+                    SendVideoSubscribeInterestPackage(GlobalName);
                 }
-                sleep(1);
-                SendSubscribeInterestPackage(GlobalName);
-                //pthread_join(thid, NULL);
+                else{
+                    // file prcoess
+                    pthread_t thid;            
+                    ARGS arg(GlobalName, port);
+                    if(pthread_create(&thid, NULL, thread_startDataReceiver, (void*)&arg) != 0){
+                        cout << "Thread " << thid << "create error" << endl;
+                        continue;
+                    }
+                    sleep(1);
+                    SendSubscribeInterestPackage(GlobalName);
+                    //pthread_join(thid, NULL);
+                }
+                
             }
             else{
                 //取消订阅
@@ -162,7 +219,13 @@ void CMD::processInerestInput(){
 
                 // only if the task is still working before we can stop it
                 if(distributer->isTaskRunning(GlobalName)){
-                    SendUnSubscribeInterestPackage(GlobalName);
+                    if(judgeVideo(GlobalName)){
+                        SendVideoUnSubscribeInterestPackage(GlobalName);
+                    }
+                    else{
+                        SendUnSubscribeInterestPackage(GlobalName);
+                    }
+                    
                 }
                 else{
                     cout << "当前无此任务!" << endl;

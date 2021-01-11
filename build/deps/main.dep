@@ -1,1 +1,2 @@
-build/objs/main.o build/deps/main.dep:main.cpp UDPSocket.h Package.h CMD.h DataReceiver.h Distributer.h
+build/objs/main.o build/deps/main.dep:main.cpp UDPSocket.h Package.h CMD.h DataReceiver.h Distributer.h \
+ VideoReceiver.h

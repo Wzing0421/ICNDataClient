@@ -4,6 +4,7 @@
 #include "UDPSocket.h"
 #include "Package.h"
 #include "DataReceiver.h"
+#include "VideoReceiver.h"
 #include "Distributer.h"
 
 #include <unordered_map>
@@ -39,6 +40,8 @@ private:
     */
     void Init();
 
+    bool judgeVideo(string GlobalName);
+
 
 public:
     CMD();
@@ -55,6 +58,10 @@ public:
     void SendSubscribeInterestPackage(string GlobalName);
 
     void SendUnSubscribeInterestPackage(string GlobalName);
+
+    void SendVideoSubscribeInterestPackage(string GlobalName);
+    // video is different
+    void SendVideoUnSubscribeInterestPackage(string GlobalName);
 
 };
 

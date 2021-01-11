@@ -1,0 +1,2 @@
+build/objs/VideoReceiver.o build/deps/VideoReceiver.dep:VideoReceiver.cpp VideoReceiver.h UDPSocket.h Package.h \
+ Distributer.h
