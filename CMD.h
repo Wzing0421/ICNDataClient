@@ -5,6 +5,7 @@
 #include "Package.h"
 #include "DataReceiver.h"
 #include "VideoReceiver.h"
+#include "MsgReceiver.h"
 #include "Distributer.h"
 
 #include <unordered_map>
@@ -42,6 +43,8 @@ private:
 
     bool judgeVideo(string GlobalName);
 
+    bool judgeFile(string GlobalName);
+
 
 public:
     CMD();
@@ -62,6 +65,10 @@ public:
     void SendVideoSubscribeInterestPackage(string GlobalName);
     // video is different
     void SendVideoUnSubscribeInterestPackage(string GlobalName);
+
+    void SendMsgSubscribeInterestPackage(string GlobalName);
+
+    void SendMsgUnSubscribeInterestPackage(string GlobalName);
 
 };
 

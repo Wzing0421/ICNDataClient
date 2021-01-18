@@ -1,2 +1,2 @@
 build/objs/CMD.o build/deps/CMD.dep:CMD.cpp CMD.h UDPSocket.h Package.h DataReceiver.h Distributer.h \
- VideoReceiver.h
+ VideoReceiver.h MsgReceiver.h
