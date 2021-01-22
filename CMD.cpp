@@ -98,7 +98,7 @@ void CMD::Init(){
     ICNDstIp = root["ICNDstIP"].asString();
 
     // 端口任意指定
-    udpclient.create(20100);
+    udpclient.create(51001);
     
     distributer = Distributer::GetInstance(51002);
 }

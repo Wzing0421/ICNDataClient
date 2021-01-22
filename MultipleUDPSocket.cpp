@@ -38,7 +38,6 @@ MultipleUDPSocket::~MultipleUDPSocket()
 
 int MultipleUDPSocket::create(string mcastip,int mcastport, unsigned short localport)
 {
-	
     struct ip_mreq mreq;
     socklen_t addr_len = sizeof(group_addr);
     u_int yes;
@@ -51,32 +50,32 @@ int MultipleUDPSocket::create(string mcastip,int mcastport, unsigned short local
         exit(1);
     }
 
-    /* allow multiple sockets to use the same PORT number */
+    //allow multiple sockets to use the same PORT number 
     if (setsockopt(socket_fd,SOL_SOCKET,SO_REUSEADDR,&yes,sizeof(yes)) < 0)
     {
         perror("Reusing ADDR failed");
         exit(1);
     }
 
-    /*set up the destination address*/
+    // set up the destination address
     memset(&group_addr,0,sizeof(struct sockaddr_in));
     
     group_addr.sin_family = AF_INET;
     group_addr.sin_port = htons(mcastport);
     group_addr.sin_addr.s_addr = inet_addr(mcastip.c_str());
 
-    /*set up the local address*/
+    // set up the local address
     memset(&local_addr,0,sizeof(local_addr));
     local_addr.sin_family = AF_INET;
     local_addr.sin_addr.s_addr = htonl(INADDR_ANY);
     local_addr.sin_port = htons(mcastport);              //this port must be the group port
-    /*bind local address*/
+    // bind local address
     if(bind(socket_fd,(struct sockaddr *)&local_addr,sizeof(local_addr)) == -1)
     {
         perror("Binding the multicast!");
         exit(1);
     }
-    /*use the setsocketopt() to request joining the multicast group*/
+    //use the setsocketopt() to request joining the multicast group
     mreq.imr_multiaddr.s_addr=inet_addr(mcastip.c_str());
     mreq.imr_interface.s_addr=htonl(INADDR_ANY);
     if (setsockopt(socket_fd,IPPROTO_IP,IP_ADD_MEMBERSHIP,&mreq,sizeof(mreq)) < 0)
