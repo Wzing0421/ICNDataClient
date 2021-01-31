@@ -111,7 +111,7 @@ void *receiveMulAeroVideo(void*){
         time_t now = time(0);
         char* dt = ctime(&now);
         // print short message
-        cout << "[Info] Receive Multiple video, Time is: " << dt << "ContentName is : " << contentName << endl;
+        //cout << "[Info] Receive Multiple video, Time is: " << dt << "ContentName is : " << contentName << endl;
         delete contentName;
     }
     muludpsocket.Close();
