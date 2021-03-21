@@ -30,7 +30,6 @@ void *receiveMulAviationMsg(void*){
     MultipleUDPSocket muludpsocket;
     // 本地端口任意，组播端口全局分配即可
     muludpsocket.create("225.0.0.1", 51010, 11010);
-
     char recvMsgBuf[1500];
     string srcip_;
     unsigned short sport_;
