@@ -86,8 +86,8 @@ void *receiveMulMetologicMsg(void*){
     muludpsocket.Close();
 }
 
-//receive mulcast test
-void *receiveMulAeroVideo(void*){
+//receive mulcast test, beam1
+void *receiveMulAeroVideo_beam1(void*){
     MultipleUDPSocket muludpsocket;
     // 本地端口任意，组播端口全局分配即可
     muludpsocket.create("225.0.0.3", 51012, 11012);
@@ -106,6 +106,66 @@ void *receiveMulAeroVideo(void*){
         char* contentName = new char[50];
         memcpy(contentName, recvVideoBuf, 50);
         muludpsocket.sendbuf(recvVideoBuf + 50, lenrecv - 50, "127.0.0.1", 53001);
+        // get local time
+        time_t now = time(0);
+        char* dt = ctime(&now);
+        // print short message
+        //cout << "[Info] Receive Multiple video, Time is: " << dt << "ContentName is : " << contentName << endl;
+        delete contentName;
+    }
+    muludpsocket.Close();
+}
+
+//receive mulcast test, beam2
+void *receiveMulAeroVideo_beam2(void*){
+    MultipleUDPSocket muludpsocket;
+    // 本地端口任意，组播端口全局分配即可
+    muludpsocket.create("225.0.0.4", 51013, 11013);
+
+    char recvVideoBuf[1500];
+    string srcip_;
+    unsigned short sport_;
+    int lenrecv;
+    cout << "Msg Multicast Aero Video Thread start! "  << endl;
+    while(true){
+        lenrecv = muludpsocket.recvbuf(recvVideoBuf, 1500, srcip_, sport_);
+        if(lenrecv < 0){
+            cout << "[Error] Multiple Video udpMsgReceiver recv error" << endl;
+            break;
+        }
+        char* contentName = new char[50];
+        memcpy(contentName, recvVideoBuf, 50);
+        muludpsocket.sendbuf(recvVideoBuf + 50, lenrecv - 50, "127.0.0.1", 53002);
+        // get local time
+        time_t now = time(0);
+        char* dt = ctime(&now);
+        // print short message
+        //cout << "[Info] Receive Multiple video, Time is: " << dt << "ContentName is : " << contentName << endl;
+        delete contentName;
+    }
+    muludpsocket.Close();
+}
+
+//receive mulcast test, beam3
+void *receiveMulAeroVideo_beam3(void*){
+    MultipleUDPSocket muludpsocket;
+    // 本地端口任意，组播端口全局分配即可
+    muludpsocket.create("225.0.0.5", 51014, 11014);
+
+    char recvVideoBuf[1500];
+    string srcip_;
+    unsigned short sport_;
+    int lenrecv;
+    cout << "Msg Multicast Aero Video Thread start! "  << endl;
+    while(true){
+        lenrecv = muludpsocket.recvbuf(recvVideoBuf, 1500, srcip_, sport_);
+        if(lenrecv < 0){
+            cout << "[Error] Multiple Video udpMsgReceiver recv error" << endl;
+            break;
+        }
+        char* contentName = new char[50];
+        memcpy(contentName, recvVideoBuf, 50);
+        muludpsocket.sendbuf(recvVideoBuf + 50, lenrecv - 50, "127.0.0.1", 53003);
         // get local time
         time_t now = time(0);
         char* dt = ctime(&now);
@@ -217,7 +277,7 @@ void receiveTextFile(char* filename){
 int main(){
     
     pthread_t thid1, thid2;
-    pthread_t thid_mulcast1, thid_mulcast2, thid_mulcast3;
+    pthread_t thid_mulcast1, thid_mulcast2, thid_mulcast3, thid_mulcast4, thid_mulcast5;
     if(pthread_create(&thid1, NULL, distributeProc, NULL) != 0){
         cout << "distribute process create error!" << endl;
         return -1;
@@ -234,16 +294,26 @@ int main(){
         cout << "multiplecast Metrologic process create error!" << endl;
         return -1;
     }
-    if(pthread_create(&thid_mulcast3, NULL, receiveMulAeroVideo, NULL) != 0){
-        cout << "multiplecast Video Aero process create error!" << endl;
+    if(pthread_create(&thid_mulcast3, NULL, receiveMulAeroVideo_beam1, NULL) != 0){
+        cout << "multiplecast Video Aero beam1 process create error!" << endl;
         return -1;
     }
-
+    if(pthread_create(&thid_mulcast4, NULL, receiveMulAeroVideo_beam2, NULL) != 0){
+        cout << "multiplecast Video Aero beam2 process create error!" << endl;
+        return -1;
+    }
+    if(pthread_create(&thid_mulcast5, NULL, receiveMulAeroVideo_beam3, NULL) != 0){
+        cout << "multiplecast Video Aero beam3 process create error!" << endl;
+        return -1;
+    }
+    
     pthread_join(thid1, NULL);
     pthread_join(thid2, NULL);
     pthread_join(thid_mulcast1, NULL);
     pthread_join(thid_mulcast2, NULL);
     pthread_join(thid_mulcast3, NULL);
+    pthread_join(thid_mulcast4, NULL);
+    pthread_join(thid_mulcast5, NULL);
     // pku/eecs/file/test2.txt
     return 0;
 }
