@@ -176,6 +176,37 @@ void *receiveMulAeroVideo_beam3(void*){
     muludpsocket.Close();
 }
 
+//receive mulcast file test, file name is: test8.txt
+void *receiveMulFile(void*){
+    MultipleUDPSocket muludpsocket;
+    // 本地端口任意，组播端口全局分配即可
+    muludpsocket.create("225.0.0.6", 51015, 11015);
+
+    ofstream outfile;
+    outfile.open("1.jpeg");
+
+    char recvFileBuf[1500];
+    string srcip_;
+    unsigned short sport_;
+    int lenrecv;
+    cout << "File Multicast Recv Thread start! "  << endl;
+    while(true){
+        lenrecv = muludpsocket.recvbuf(recvFileBuf, 1500, srcip_, sport_);
+        if(lenrecv < 0){
+            cout << "[Error] File Multicast Recv error" << endl;
+            break;
+        }
+        DataPackage dataPackage;
+        memcpy(&dataPackage, recvFileBuf, sizeof(DataPackage));
+        outfile.write(dataPackage.data, dataPackage.datasize);
+        if(dataPackage.end == 1) break;
+        
+    }
+    muludpsocket.Close();
+    outfile.close();
+
+}
+
 void fileCopy(char *file1, char *file2)  
 {  
     // 最好对file1和file2进行判断  
@@ -277,7 +308,7 @@ void receiveTextFile(char* filename){
 int main(){
     
     pthread_t thid1, thid2;
-    pthread_t thid_mulcast1, thid_mulcast2, thid_mulcast3, thid_mulcast4, thid_mulcast5;
+    pthread_t thid_mulcast1, thid_mulcast2, thid_mulcast3, thid_mulcast4, thid_mulcast5, thid_mulcast6;
     if(pthread_create(&thid1, NULL, distributeProc, NULL) != 0){
         cout << "distribute process create error!" << endl;
         return -1;
@@ -306,7 +337,11 @@ int main(){
         cout << "multiplecast Video Aero beam3 process create error!" << endl;
         return -1;
     }
-    
+    if(pthread_create(&thid_mulcast6, NULL, receiveMulFile, NULL) != 0){
+        cout << "multiplecast File process create error!" << endl;
+        return -1;
+    }
+
     pthread_join(thid1, NULL);
     pthread_join(thid2, NULL);
     pthread_join(thid_mulcast1, NULL);
@@ -314,6 +349,7 @@ int main(){
     pthread_join(thid_mulcast3, NULL);
     pthread_join(thid_mulcast4, NULL);
     pthread_join(thid_mulcast5, NULL);
+    pthread_join(thid_mulcast6, NULL);
     // pku/eecs/file/test2.txt
     return 0;
 }

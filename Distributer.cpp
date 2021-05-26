@@ -72,9 +72,6 @@ void Distributer::distributeProc(){
         if( (port = getPortByContentName(upperName)) != 0){
             udpSocket.sendbuf(recvDataBuf, 1500, "127.0.0.1", port);
         }
-        else{
-            cout << "[Error]: No UpperName in ContentName2Port! UpperName is: " << upperName << endl;
-        }
 
     }
     udpSocket.Close();
